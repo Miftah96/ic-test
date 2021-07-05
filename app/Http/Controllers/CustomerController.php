@@ -79,15 +79,15 @@ class CustomerController extends Controller
         return ResponseHelper::response($data);
     }
 
-    public function update(Request $request,$Customer)
+    public function update(Request $request,$customer)
     {
         DB::beginTransaction();
 
         try {
-            $customer = Customer::where('Customer_id', $customer)->get();
-            $customer->Customer_id = $request->Customer_id;
-            $customer->Customer_name = $request->Customer_name;
-            $customer->price = $request->price;
+            $customer = Customer::where('customer_id', $customer)->first();
+            $customer->customer_id = $request->customer_id;
+            $customer->customer_name = $request->customer_name;
+            $customer->address = $request->address;
             $customer->update();
 
             DB::commit();
@@ -99,23 +99,19 @@ class CustomerController extends Controller
         }
     }
 
-    public function destroy(Customer $customer)
+    public function destroy($customer)
     {
-        $res = $customer;
         DB::beginTransaction();
 
         try {
-            $id = Customer::where('Customer_id', $customer)->first();
-            $id->delete();
-
+            $customer = Customer::findOrFail($customer);
+            $customer->delete();
             DB::commit();
-
-            $res->deleted = true;
-            return ResponseHelper::response($res);
+            return ResponseHelper::response("Data deleted successfully");
         } catch (\Throwable $th) {
             DB::rollback();
 
-            return ResponseHelper::response($th->getMessage(), 500);
+            return ResponseHelper::response("Data is not found", 404);
         }
     }
 }

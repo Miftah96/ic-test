@@ -15,7 +15,7 @@ class ResponseHelper
             'payload'   => $data
         ];
 
-        return response($response, 200);
+        return response($response, $status);
     }
     
     public static function notFoundResponse($message)
