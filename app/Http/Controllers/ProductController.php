@@ -65,7 +65,7 @@ class ProductController extends Controller
             $data   = new ProductResource($product);
 
             DB::commit();
-            return ResponseHelper::response($data);
+            return ResponseHelper::response($product);
         }
         catch (\Throwable $th){
             DB::rollBack();
@@ -85,7 +85,7 @@ class ProductController extends Controller
         DB::beginTransaction();
 
         try {
-            $product = Product::where('product_id', $product)->get();
+            $product = Product::findOrFail($product);
             $product->product_id = $request->product_id;
             $product->product_name = $request->product_name;
             $product->price = $request->price;
@@ -100,23 +100,20 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Product $product)
+    public function destroy($product)
     {
-        $res = $product;
         DB::beginTransaction();
 
         try {
-            $id = Product::where('product_id', $product)->first();
+            $id = Product::findOrFail($product);
             $id->delete();
 
             DB::commit();
-
-            $res->deleted = true;
-            return ResponseHelper::response($res);
+            return ResponseHelper::response("Data deleted successfully");
         } catch (\Throwable $th) {
             DB::rollback();
 
-            return ResponseHelper::response($th->getMessage(), 500);
+            return ResponseHelper::response("No data available", 404);
         }
     }
 }
